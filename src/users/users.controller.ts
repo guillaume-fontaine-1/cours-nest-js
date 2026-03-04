@@ -1,6 +1,17 @@
-import {Controller, Post, Body, Param, Get, Query, NotFoundException} from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    Param,
+    Get,
+    Query,
+    NotFoundException,
+    UseInterceptors,
+    ClassSerializerInterceptor
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import {UsersService} from "./users.service";
+import {MaskPasswordInterceptor} from "../interceptors/mask-password.interceptor";
 
 @Controller('auth')
 export class UsersController {
@@ -14,6 +25,7 @@ export class UsersController {
   }
 
   @Get('/:id')
+  @UseInterceptors(MaskPasswordInterceptor)
      async findById(@Param('id') id: string) {
         const user =  await this.usersService.findOne(parseInt(id));
       console.log(user)
