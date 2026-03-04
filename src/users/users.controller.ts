@@ -38,6 +38,8 @@ export class UsersController {
 
   @Get()
   findUserByEmail(@Query('email') email: string) {
-    return this.usersService.find(email);
+    return this.usersService.findByEmail(email);
   }
+
+
 }
