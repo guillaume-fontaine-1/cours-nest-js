@@ -20,5 +20,8 @@ export class UsersService {
 
     }
 
+    find(email: string){
+        return this.usersRepository.find({where: {email}});
+    }
 
 }
