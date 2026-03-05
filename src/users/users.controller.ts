@@ -6,29 +6,19 @@ import {
     Get,
     Query,
     NotFoundException,
-    UseInterceptors, Session,
+    UseInterceptors, Session, UseGuards,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersService } from './users.service';
 import { SerializeInterceptor } from '../interceptors/dto-serialize.interceptor';
+import { AuthGuard } from '../guards/auth.guard';
 
 @Controller('auth')
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @Get('/whoami')
-  @UseInterceptors(new SerializeInterceptor(UserResponseDto))
-  whoAmI(@Session() session: any) {
-    return this.usersService.findOne(session.userId);
-  }
-
-  @Post('/signout')
-  signOut(@Session() session: any) {
-    session.userId = null;
-  }
-
-  @Post('/signup')
+  @Post('signup')
   @UseInterceptors(new SerializeInterceptor(UserResponseDto))
   async createUser(@Body() body: CreateUserDto, @Session() session: any) {
     const user = await this.usersService.signup(body.email, body.password);
@@ -36,7 +26,7 @@ export class UsersController {
     return user;
   }
 
-  @Post('/signin')
+  @Post('signin')
   @UseInterceptors(new SerializeInterceptor(UserResponseDto))
   async signin(@Body() body: CreateUserDto, @Session() session: any) {
     const user = await this.usersService.signin(body.email, body.password);
@@ -57,5 +47,15 @@ export class UsersController {
   @Get()
   findAllUsers(@Query('email') email: string) {
     return this.usersService.findByEmail(email);
+  }
+
+  @Post('signout')
+    async signout(@Session() session: any){
+      session.userId = null;
+  }
+
+  @Get('whoAmI')
+    async whoAmI(@Session() session: any){
+      return this.usersService.findOne(session.userId);
   }
 }
