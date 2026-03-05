@@ -18,8 +18,18 @@ export class UsersController {
   constructor(private usersService: UsersService) {}
 
   @Post('signup')
+  @UseInterceptors(new SerializeInterceptor(UserResponseDto))
   createUser(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(
+    return this.usersService.signup(
+      createUserDto.email,
+      createUserDto.password,
+    );
+  }
+
+  @Post('signin')
+  @UseInterceptors(new SerializeInterceptor(UserResponseDto))
+  signin(@Body() createUserDto: CreateUserDto) {
+      return this.usersService.signin(
       createUserDto.email,
       createUserDto.password,
     );

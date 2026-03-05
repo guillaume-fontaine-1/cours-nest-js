@@ -1,4 +1,4 @@
-import {BadRequestException, Injectable} from '@nestjs/common';
+import {BadRequestException, Injectable, NotFoundException} from '@nestjs/common';
 import {InjectRepository} from "@nestjs/typeorm";
 import {User} from "./user.entity";
 import {Repository} from "typeorm";
@@ -14,6 +14,23 @@ export class UsersService {
     create(email: string, password: string){
         const user = this.usersRepository.create({email, password});
         return this.usersRepository.save(user);
+    }
+
+    async signin(email: string, password: string){
+        const [user] = await this.findByEmail(email);
+        if(!user){
+            throw new NotFoundException('User not found');
+        }
+
+        const [salt, storedHash] = user.password.split('.');
+
+        const hash = await this.hashPassword(password, salt);
+
+        if(storedHash !== hash){
+            throw new BadRequestException('Bad password');
+        }
+
+        return user;
     }
 
     findOne(id: number){
